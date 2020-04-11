@@ -7,14 +7,16 @@ import QueuesRedisDriver
 
 public func configure(_ app: Application) throws {
     // MARK: JWT
-    let jwksFilePath = app.directory.workingDirectory + (Environment.get("JWKS_KEYPAIR_FILE") ?? "keypair.jwks")
-    guard
-        let jwks = FileManager.default.contents(atPath: jwksFilePath),
-        let jwksString = String(data: jwks, encoding: .utf8)
-        else {
-            fatalError("Failed to load JWKS Keypair file at: \(jwksFilePath)")
+    if app.environment != .testing {
+        let jwksFilePath = app.directory.workingDirectory + (Environment.get("JWKS_KEYPAIR_FILE") ?? "keypair.jwks")
+         guard
+             let jwks = FileManager.default.contents(atPath: jwksFilePath),
+             let jwksString = String(data: jwks, encoding: .utf8)
+             else {
+                 fatalError("Failed to load JWKS Keypair file at: \(jwksFilePath)")
+         }
+         try app.jwt.signers.use(jwksJSON: jwksString)
     }
-    try app.jwt.signers.use(jwksJSON: jwksString)
     
     // MARK: Database
     // Configure PostgreSQL database

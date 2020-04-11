@@ -1,11 +1,24 @@
 name: test
 on:
 - pull_request
+env: 
+  MAILGUN_API_KEY: test
+  SITE_API_URL: test
+  SITE_FRONTEND_URL: test
+  NO_REPLY_EMAIL: test
+  POSTGRES_HOSTNAME: postgres
 jobs:
   xenial:
     container: 
       image: vapor/swift:5.2-xenial
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: vapor
+          POSTGRES_DB: vapor
+          POSTGRES_PASSWORD: password
     steps:
     - uses: actions/checkout@v1
     - run: swift test --enable-test-discovery --sanitize=thread
@@ -13,6 +26,13 @@ jobs:
     container: 
       image: vapor/swift:5.2-bionic
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USER: vapor
+          POSTGRES_DB: vapor
+          POSTGRES_PASSWORD: password
     steps:
     - uses: actions/checkout@v1
     - run: swift test --enable-test-discovery --sanitize=thread
