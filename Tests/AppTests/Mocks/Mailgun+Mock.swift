@@ -5,20 +5,26 @@ import Mailgun
 struct MockMailgun: MailgunProvider {
     var eventLoop: EventLoop
     
-    func send(_ content: MailgunMessage) -> EventLoopFuture<HTTPClient.Response> {
+    func send(_ content: MailgunMessage) -> EventLoopFuture<ClientResponse> {
         fatalError()
     }
     
-    func send(_ content: MailgunTemplateMessage) -> EventLoopFuture<HTTPClient.Response> {
+    func send(_ content: MailgunTemplateMessage) -> EventLoopFuture<ClientResponse> {
         fatalError()
     }
     
-    func setup(forwarding: MailgunRouteSetup) -> EventLoopFuture<HTTPClient.Response> {
+    func setup(forwarding: MailgunRouteSetup) -> EventLoopFuture<ClientResponse> {
         fatalError()
     }
     
-    func createTemplate(_ template: MailgunTemplate) -> EventLoopFuture<HTTPClient.Response> {
+    func createTemplate(_ template: MailgunTemplate) -> EventLoopFuture<ClientResponse> {
         fatalError()
+    }
+    
+    func delegating(to eventLoop: EventLoop) -> MailgunProvider {
+        var copy = self
+        copy.eventLoop = eventLoop
+        return copy
     }
 }
 
