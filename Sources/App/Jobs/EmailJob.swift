@@ -28,22 +28,3 @@ struct EmailJob: Job {
     }
 }
 
-extension QueueContext {
-    func mailgun() -> MailgunProvider {
-        application.mailgun().for(self)
-    }
-    
-    func mailgun(_ domain: MailgunDomain? = nil) -> MailgunProvider {
-        application.mailgun(domain).for(self)
-    }
-    
-    var appConfig: AppConfig {
-        application.config
-    }
-}
-
-extension MailgunProvider  {
-    func `for`(_ context: QueueContext) -> MailgunProvider {
-        self.hopped(to: context.eventLoop)
-    }
-}
