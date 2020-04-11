@@ -11,7 +11,7 @@ final class LoginTests: XCTestCase {
     override func setUpWithError() throws {
         app = Application(.testing)
         try configure(app)
-        testWorld = TestWorld(app: app)
+        testWorld = try TestWorld(app: app)
     }
     
     override func tearDown() {

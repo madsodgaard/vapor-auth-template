@@ -17,8 +17,10 @@ class TestWorld {
     private var emailTokens: [EmailToken] = []
     private var passwordTokens: [PasswordToken] = []
     
-    init(app: Application) {
+    init(app: Application) throws {
         self.app = app
+        
+        try app.jwt.signers.use(.es256(key: .generate()))
         
         self.tokenRepository = TestRefreshTokenRepository(tokens: refreshtokens, eventLoop: app.eventLoopGroup.next())
         self.userRepository = TestUserRepository(users: users, eventLoop: app.eventLoopGroup.next())
@@ -35,3 +37,5 @@ class TestWorld {
         app.config = .init(frontendURL: "http://frontend.local", apiURL: "http://api.local", noReplyEmail: "no-reply@testing.local")
     }
 }
+
+

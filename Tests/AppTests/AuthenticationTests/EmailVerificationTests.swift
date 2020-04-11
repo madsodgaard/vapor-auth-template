@@ -12,7 +12,7 @@ final class EmailVerificationTests: XCTestCase {
     override func setUpWithError() throws {
         app = Application(.testing)
         try configure(app)
-        self.testWorld = TestWorld(app: app)
+        self.testWorld = try TestWorld(app: app)
     }
     
     override func tearDown() {
