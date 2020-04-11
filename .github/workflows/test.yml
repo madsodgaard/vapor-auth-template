@@ -1,13 +1,13 @@
 name: test
 on:
 - pull_request
+env: 
+  MAILGUN_API_KEY: test
+  SITE_API_URL: test
+  SITE_FRONTEND_URL: test
+  NO_REPLY_EMAIL: test
+  POSTGRES_HOSTNAME: postgres
 jobs:
-  env: 
-    MAILGUN_API_KEY: test
-    SITE_API_URL: test
-    SITE_FRONTEND_URL: test
-    NO_REPLY_EMAIL: test
-    POSTGRES_HOSTNAME: postgres
   xenial:
     container: 
       image: vapor/swift:5.2-xenial
