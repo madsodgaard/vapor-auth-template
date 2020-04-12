@@ -83,7 +83,8 @@ final class LoginTests: XCTestCase {
         let user = try User(fullName: "Test User", email: "test@test.com", passwordHash: app.password.hash("password"), isEmailVerified: true)
         try app.repositories.users.create(user).wait()
         let loginRequest = LoginRequest(email: "test@test.com", password: "password")
-        let refreshToken = try user.generateRefreshToken(generator: app.random)
+        let token = app.random.generate(bits: 256)
+        let refreshToken = try RefreshToken(token: SHA256.hash(token), userID: user.requireID())
         try app.repositories.refreshTokens.create(refreshToken).wait()
         
         try app.test(.POST, loginPath, beforeRequest: { req in

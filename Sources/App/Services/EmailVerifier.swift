@@ -10,9 +10,9 @@ struct EmailVerifier {
     
     func verify(for user: User) -> EventLoopFuture<Void> {
         do {
-            let emailToken = try user.generateEmailToken(generator: generator)
-            let verifyUrl = url(token: emailToken.token)
-            emailToken.token = SHA256.hash(emailToken.token)
+            let token = generator.generate(bits: 256)
+            let emailToken = try EmailToken(userID: user.requireID(), token: SHA256.hash(token))
+            let verifyUrl = url(token: token)
             return emailTokenRepository.create(emailToken).flatMap {
                 self.queue.dispatch(EmailJob.self, .init(VerificationEmail(verifyUrl: verifyUrl), to: user.email))
             }

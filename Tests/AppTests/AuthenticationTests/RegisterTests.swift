@@ -36,6 +36,7 @@ final class RegisterTests: XCTestCase {
             XCTAssertTrue(try BCryptDigest().verify("password123", created: user.passwordHash))
             
             let emailToken = try app.repositories.emailTokens.find(token: SHA256.hash("token")).wait()
+            XCTAssertEqual(emailToken?.$user.id, user.id)
             XCTAssertNotNil(emailToken)
             
             let job = try XCTUnwrap(app.queues.test.first(EmailJob.self))
