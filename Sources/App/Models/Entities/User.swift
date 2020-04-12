@@ -39,19 +39,4 @@ final class User: Model, Authenticatable {
         self.isAdmin = isAdmin
         self.isEmailVerified = isEmailVerified
     }
-    
-    /// Generates a 256-bit refresh token.
-    func generateRefreshToken(generator: RandomGenerator) throws -> RefreshToken {
-        try RefreshToken(token: generator.generate(bits: 256), userID: self.requireID())
-    }
-    
-    /// Generates a UUID password reset token
-    func generateResetPasswordToken(generator: RandomGenerator) throws -> PasswordToken {
-        try PasswordToken(userID: self.requireID(), token: generator.generate(bits: 256))
-    }
-    
-    /// Generates a UUID email verification token
-    func generateEmailToken(generator: RandomGenerator) throws -> EmailToken {
-        try EmailToken(userID: self.requireID(), token: generator.generate(bits: 256))
-    }
 }

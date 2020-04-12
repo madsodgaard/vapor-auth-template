@@ -76,17 +76,16 @@ struct AuthenticationController: RouteCollection {
         }
         .flatMap { user in
             do {
-                let token = try user.generateRefreshToken(generator: req.random)
-                // Middleware will hash the string, so we need the raw one.
-                let refreshToken = token.token
+                let token = req.random.generate(bits: 256)
+                let refreshToken = try RefreshToken(token: SHA256.hash(token), userID: user.requireID())
                 
                 return req.refreshTokens
-                    .create(token)
+                    .create(refreshToken)
                     .flatMapThrowing {
                         try LoginResponse(
                             user: UserDTO(from: user),
                             accessToken: req.jwt.sign(Payload(with: user)),
-                            refreshToken: refreshToken
+                            refreshToken: token
                         )
                 }
             } catch {
@@ -97,7 +96,7 @@ struct AuthenticationController: RouteCollection {
     
     private func refreshAccessToken(_ req: Request) throws -> EventLoopFuture<AccessTokenResponse> {
         let accessTokenRequest = try req.content.decode(AccessTokenRequest.self)
-        let hashedRefreshToken = SHA256.hash(data: accessTokenRequest.refreshToken.data(using: .utf8)!).base64
+        let hashedRefreshToken = SHA256.hash(accessTokenRequest.refreshToken)
         
         return req.refreshTokens
             .find(token: hashedRefreshToken)
@@ -108,14 +107,15 @@ struct AuthenticationController: RouteCollection {
             .unwrap(or: AuthenticationError.refreshTokenOrUserNotFound)
             .flatMap { user in
                 do {
-                    let refreshToken = try user.generateRefreshToken(generator: req.random)
-                    let refreshTokenString = refreshToken.token
+                    let token = req.random.generate(bits: 256)
+                    let refreshToken = try RefreshToken(token: SHA256.hash(token), userID: user.requireID())
+                    
                     let payload = try Payload(with: user)
                     let accessToken = try req.jwt.sign(payload)
                     
                     return req.refreshTokens
                         .create(refreshToken)
-                        .transform(to: (refreshTokenString, accessToken))
+                        .transform(to: (token, accessToken))
                 } catch {
                     return req.eventLoop.makeFailedFuture(error)
                 }
@@ -135,7 +135,7 @@ struct AuthenticationController: RouteCollection {
     private func verifyEmail(_ req: Request) throws -> EventLoopFuture<HTTPStatus> {
         let token = try req.query.get(String.self, at: "token")
         
-        let hashedToken = SHA256.hash(data: token.data(using: .utf8)!).base64
+        let hashedToken = SHA256.hash(token)
         
         return req.emailTokens
             .find(token: hashedToken)
@@ -168,7 +168,7 @@ struct AuthenticationController: RouteCollection {
     private func verifyResetPasswordToken(_ req: Request) throws -> EventLoopFuture<HTTPStatus> {
         let token = try req.query.get(String.self, at: "token")
         
-        let hashedToken = SHA256.hash(data: token.data(using: .utf8)!).base64
+        let hashedToken = SHA256.hash(token)
         
         return req.passwordTokens
             .find(token: hashedToken)
@@ -194,7 +194,7 @@ struct AuthenticationController: RouteCollection {
             throw AuthenticationError.passwordsDontMatch
         }
         
-        let hashedToken = SHA256.hash(data: content.token.data(using: .utf8)!).base64
+        let hashedToken = SHA256.hash(content.token)
         
         return req.passwordTokens
             .find(token: hashedToken)
@@ -225,7 +225,7 @@ struct AuthenticationController: RouteCollection {
         return req.users
             .find(email: content.email)
             .flatMap {
-                guard let user = $0 else {
+                guard let user = $0, !user.isEmailVerified else {
                     return req.eventLoop.makeSucceededFuture(.noContent)
                 }
                 

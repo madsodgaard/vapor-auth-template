@@ -13,7 +13,6 @@ class TestRefreshTokenRepository: RefreshTokenRepository, TestRepository {
     
     func create(_ token: RefreshToken) -> EventLoopFuture<Void> {
         token.id = UUID()
-        token.token = SHA256.hash(data: token.token.data(using: .utf8)!).base64
         tokens.append(token)
         return eventLoop.makeSucceededFuture(())
     }

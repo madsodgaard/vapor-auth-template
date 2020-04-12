@@ -10,6 +10,6 @@ extension Application.RandomGenerators.Provider {
 
 struct RealRandomGenerator: RandomGenerator {
     func generate(bits: Int) -> String {
-        [UInt8].random(count: bits / 8).base64
+        [UInt8].random(count: bits / 8).hex
     }
 }

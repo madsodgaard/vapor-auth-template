@@ -22,7 +22,7 @@ final class EmailVerificationTests: XCTestCase {
     func testVerifyingEmailHappyPath() throws {
         let user = User(fullName: "Test User", email: "test@test.com", passwordHash: "123")
         try app.repositories.users.create(user).wait()
-        let expectedHash = SHA256.hash(data: "token123".data(using: .utf8)!).base64
+        let expectedHash = SHA256.hash("token123")
         
         let emailToken = EmailToken(userID: try user.requireID(), token: expectedHash)
         try app.repositories.emailTokens.create(emailToken).wait()
@@ -31,9 +31,9 @@ final class EmailVerificationTests: XCTestCase {
             try req.query.encode(["token": "token123"])
         }, afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            let user = try app.repositories.users.find(id: user.id!).wait()
-            XCTAssertEqual(user!.isEmailVerified, true)
-            let token = try app.repositories.emailTokens.find(token: "token123").wait()
+            let user = try XCTUnwrap(app.repositories.users.find(id: user.id!).wait())
+            XCTAssertEqual(user.isEmailVerified, true)
+            let token = try app.repositories.emailTokens.find(userID: user.requireID()).wait()
             XCTAssertNil(token)
         })
     }
@@ -49,7 +49,7 @@ final class EmailVerificationTests: XCTestCase {
     func testVerifyingEmailWithExpiredTokenFails() throws {
         let user = User(fullName: "Test User", email: "test@test.com", passwordHash: "123")
         try app.repositories.users.create(user).wait()
-        let expectedHash = SHA256.hash(data: "token123".data(using: .utf8)!).base64
+        let expectedHash = SHA256.hash("token123")
         let emailToken = EmailToken(userID: try user.requireID(), token: expectedHash, expiresAt: Date().addingTimeInterval(-Constants.EMAIL_TOKEN_LIFETIME - 1) )
         try app.repositories.emailTokens.create(emailToken).wait()
         
