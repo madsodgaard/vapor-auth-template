@@ -7,7 +7,7 @@ protocol UserRepository: Repository {
     func all() -> EventLoopFuture<[User]>
     func find(id: UUID?) -> EventLoopFuture<User?>
     func find(email: String) -> EventLoopFuture<User?>
-    func set<Field>(_ field: KeyPath<User, Field>, to value: Field.Value, for userID: UUID) -> EventLoopFuture<Void> where Field: FieldProtocol, Field.Model == User
+    func set<Field>(_ field: KeyPath<User, Field>, to value: Field.Value, for userID: UUID) -> EventLoopFuture<Void> where Field: QueryableProperty, Field.Model == User
     func count() -> EventLoopFuture<Int>
 }
 
@@ -39,7 +39,7 @@ struct DatabaseUserRepository: UserRepository, DatabaseRepository {
     }
     
     func set<Field>(_ field: KeyPath<User, Field>, to value: Field.Value, for userID: UUID) -> EventLoopFuture<Void>
-        where Field: FieldProtocol, Field.Model == User
+        where Field: QueryableProperty, Field.Model == User
     {
         return User.query(on: database)
             .filter(\.$id == userID)

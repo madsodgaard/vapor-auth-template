@@ -36,7 +36,7 @@ class TestUserRepository: UserRepository, TestRepository {
         return eventLoop.makeSucceededFuture(user)
     }
     
-    func set<Field>(_ field: KeyPath<User, Field>, to value: Field.Value, for userID: UUID) -> EventLoopFuture<Void> where Field : FieldProtocol, Field.Model == User {
+    func set<Field>(_ field: KeyPath<User, Field>, to value: Field.Value, for userID: UUID) -> EventLoopFuture<Void> where Field : QueryableProperty, Field.Model == User {
         let user = users.first(where: { $0.id == userID })!
         user[keyPath: field].value = value
         return eventLoop.makeSucceededFuture(())
