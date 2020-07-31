@@ -46,7 +46,8 @@ public func configure(_ app: Application) throws {
     try queues(app)
     try services(app)
     
-    
+    app.queues.configuration.refreshInterval = .minutes(2)
+   
     if app.environment == .development {
         try app.autoMigrate().wait()
         try app.queues.startInProcessJobs()
