@@ -18,8 +18,7 @@ let package = Package(
         // Mailgun
         .package(url: "https://github.com/vapor-community/mailgun.git", from: "5.0.0")
 
-     ]
-,
+     ],
     targets: [
         .executableTarget(
             name: "App",
