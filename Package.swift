@@ -28,7 +28,6 @@ let package = Package(
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "QueuesRedisDriver", package: "queues-redis-driver"),
                 .product(name: "JWT", package: "jwt"),
-                .product(name: "Vapor", package: "vapor"),
                 .product(name: "Mailgun", package: "mailgun"),
                 .product(name: "Queues", package: "queues"),
 
@@ -37,6 +36,8 @@ let package = Package(
         .testTarget(name: "AppTests", dependencies: [
             .target(name: "App"),
             .product(name: "XCTVapor", package: "vapor"),
+            .product(name: "XCTQueues", package: "queues"),
+
         ])
     ]
 )
