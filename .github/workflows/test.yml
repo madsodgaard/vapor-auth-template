@@ -10,7 +10,7 @@ env:
 jobs:
   xenial:
     container: 
-      image: vapor/swift:5.6-xenial
+      image: vapor/swift:5.2-xenial
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -24,7 +24,7 @@ jobs:
     - run: swift test --enable-test-discovery --sanitize=thread
   bionic:
     container: 
-      image: vapor/swift:5.6-bionic
+      image: vapor/swift:5.2-bionic
     runs-on: ubuntu-latest
     services:
       postgres:
