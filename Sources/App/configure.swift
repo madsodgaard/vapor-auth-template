@@ -20,14 +20,9 @@ public func configure(_ app: Application) throws {
     
     // MARK: Database
     // Configure PostgreSQL database
-    app.databases.use(
-        .postgres(
-            hostname: Environment.get("POSTGRES_HOSTNAME") ?? "localhost",
-            username: Environment.get("POSTGRES_USERNAME") ?? "vapor",
-            password: Environment.get("POSTGRES_PASSWORD") ?? "password",
-            database: Environment.get("POSTGRES_DATABASE") ?? "vapor"
-        ), as: .psql)
-        
+    
+    try configurePostgres(for:app)
+    
     // MARK: Middleware
     app.middleware = .init()
     app.middleware.use(ErrorMiddleware.custom(environment: app.environment))
@@ -51,4 +46,26 @@ public func configure(_ app: Application) throws {
         try app.autoMigrate().wait()
         try app.queues.startInProcessJobs()
     }
+}
+
+fileprivate func configurePostgres(for app:Application)  throws {
+    
+    let host = Environment.get("POSTGRES_HOSTNAME") ?? "localhost"
+    let user =  Environment.get("POSTGRES_USERNAME") ?? "vapor"
+    let password = Environment.get("POSTGRES_PASSWORD") ?? "password"
+    let db =  Environment.get("POSTGRES_DATABASE") ?? "vapor"
+    
+    let port = Environment.get("DATABASE_PORT")
+               .flatMap(Int.init(_:)) ??
+                SQLPostgresConfiguration.ianaPortNumber
+    /**
+        Postgresql URL Format
+     
+     postgresql://[user[:password]@][netloc][:port][/dbname][?param1=value1&...]
+     */
+        
+    let url = "postgresql://\(user):\(password)@\(host):\(port)/\(db)"
+    
+    try app.databases.use(.postgres(url: url),
+                          as: .psql)
 }
