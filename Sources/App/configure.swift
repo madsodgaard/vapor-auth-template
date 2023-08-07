@@ -6,6 +6,9 @@ import Mailgun
 import QueuesRedisDriver
 
 public func configure(_ app: Application) throws {
+    
+    app.logger.info("configuring for \(app.environment.name)")
+    
     // MARK: JWT
     if app.environment != .testing {
         let jwksFilePath = app.directory.workingDirectory + (Environment.get("JWKS_KEYPAIR_FILE") ?? "keypair.jwks")
@@ -20,14 +23,9 @@ public func configure(_ app: Application) throws {
     
     // MARK: Database
     // Configure PostgreSQL database
-    app.databases.use(
-        .postgres(
-            hostname: Environment.get("POSTGRES_HOSTNAME") ?? "localhost",
-            username: Environment.get("POSTGRES_USERNAME") ?? "vapor",
-            password: Environment.get("POSTGRES_PASSWORD") ?? "password",
-            database: Environment.get("POSTGRES_DATABASE") ?? "vapor"
-        ), as: .psql)
-        
+    
+    try configurePostgres(for:app)
+    
     // MARK: Middleware
     app.middleware = .init()
     app.middleware.use(ErrorMiddleware.custom(environment: app.environment))
@@ -35,20 +33,42 @@ public func configure(_ app: Application) throws {
     // MARK: Model Middleware
     
     // MARK: Mailgun
-    app.mailgun.configuration = .environment
-    app.mailgun.defaultDomain = .sandbox
+    if app.environment != .testing {
+        app.mailgun.configuration = .environment
+        app.mailgun.defaultDomain = .sandbox
+    }
     
     // MARK: App Config
-    app.config = .environment
+    if app.environment != .testing {
+        app.config = .environment
+    }
     
     try routes(app)
     try migrations(app)
     try queues(app)
     try services(app)
     
-    
     if app.environment == .development {
-        try app.autoMigrate().wait()
-        try app.queues.startInProcessJobs()
+        Task {
+            try await app.autoMigrate()
+            try app.queues.startInProcessJobs()
+        }
     }
+}
+
+fileprivate func configurePostgres(for app:Application) throws {
+    
+    let host = Environment.get("POSTGRES_HOSTNAME") ?? "localhost"
+    let user =  Environment.get("POSTGRES_USERNAME") ?? "vapor"
+    let password = Environment.get("POSTGRES_PASSWORD") ?? "password"
+    let db =  Environment.get("POSTGRES_DATABASE") ?? "vapor"
+    
+    let port = Environment.get("DATABASE_PORT")
+               .flatMap(Int.init(_:)) ??
+                SQLPostgresConfiguration.ianaPortNumber
+   
+    let url = "postgres://\(user):\(password)@\(host):\(port)/\(db)"
+    
+    try app.databases.use(.postgres(url: url),
+                          as: .psql)
 }

@@ -12,6 +12,7 @@ final class TokenTests: XCTestCase {
     override func setUpWithError() throws {
         app = Application(.testing)
         try configure(app)
+
         self.testWorld = try TestWorld(app: app)
         
         user = User(fullName: "Test User", email: "test@test.com", passwordHash: "123")

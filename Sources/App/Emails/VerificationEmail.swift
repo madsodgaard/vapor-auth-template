@@ -1,7 +1,7 @@
 import Vapor
 
 struct VerificationEmail: Email {
-    let templateName: String = "email_verification"
+    var templateName: String = "email_verification"
     let verifyUrl: String
     
     var subject: String {

@@ -10,6 +10,7 @@ final class EmailTokenRepositoryTests: XCTestCase {
     override func setUpWithError() throws {
         app = Application(.testing)
         try configure(app)
+
         repository = DatabaseEmailTokenRepository(database: app.db)
         try app.autoMigrate().wait()
         

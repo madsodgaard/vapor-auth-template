@@ -8,7 +8,7 @@ final class AuthenticationTests: XCTestCase {
     var testWorld: TestWorld!
     
     override func setUpWithError() throws {
-        app = Application(.testing)
+        self.app = Application(.testing)
         try configure(app)
         self.testWorld = try TestWorld(app: app)
     }
