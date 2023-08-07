@@ -10,6 +10,7 @@ final class RefreshTokenRepositoryTests: XCTestCase {
     override func setUpWithError() throws {
         app = Application(.testing)
         try configure(app)
+
         repository = DatabaseRefreshTokenRepository(database: app.db)
         try app.autoMigrate().wait()
         user = User(fullName: "Test User", email: "test@test.com", passwordHash: "123")
