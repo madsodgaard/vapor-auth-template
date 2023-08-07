@@ -1,7 +1,7 @@
 @testable import App
 import Vapor
 
-protocol TestRepository: class {
+protocol TestRepository: AnyObject {
     var eventLoop: EventLoop { get set }
 }
 

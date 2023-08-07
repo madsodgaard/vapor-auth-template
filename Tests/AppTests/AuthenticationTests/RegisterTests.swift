@@ -11,6 +11,7 @@ final class RegisterTests: XCTestCase {
     override func setUpWithError() throws {
         app = Application(.testing)
         try configure(app)
+
         self.testWorld = try TestWorld(app: app)
     }
     

@@ -10,6 +10,7 @@ final class ResetPasswordTests: XCTestCase {
     override func setUpWithError() throws {
         app = Application(.testing)
         try configure(app)
+
         self.testWorld = try TestWorld(app: app)
     }
     

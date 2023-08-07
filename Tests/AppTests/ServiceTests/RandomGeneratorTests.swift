@@ -8,6 +8,7 @@ final class RandomGeneratorTests: XCTestCase {
     override func setUpWithError() throws {
         app = Application(.testing)
         try configure(app)
+
         testWorld = try .init(app: app)
     }
     
